@@ -1,11 +1,10 @@
-import requests
 import base64
 
 class PaddingDialer:
     def __init__(self):
         self.encrypted_bytes = None
         self.iv = None
-        self.block_size_in_byte = 128 / 8
+        self.block_size_in_byte = int(128 / 8)
 
 
     def set_encrypted_bytes(self, encrypted_bytes):
@@ -49,11 +48,14 @@ class PaddingDialer:
         return p
 
     def solve_block(self, prev_block, target_block):
-        dial_block = prev_block.copy()
+        print(to_hex(prev_block))
+        print(to_hex(target_block))
+        dial_block = bytearray(prev_block)
 
         for i in reversed(range(self.block_size_in_byte)):
+            set_to = self.block_size_in_byte - i
             for j in range(i + 1, self.block_size_in_byte):
-                dial_block[j] = (dial_block[j] + 1) % 256
+                dial_block[j] ^= set_to ^ (set_to - 1)
 
             count = 0
             while True:
@@ -66,11 +68,14 @@ class PaddingDialer:
                     raise Exception("Cannot dial to right padding")
 
 
-        plaintext = bytes(d ^ p ^ 255 for (d, p) in zip(dial_block, prev_block))
+        plaintext = bytes(d ^ p ^ self.block_size_in_byte for (d, p) in zip(dial_block, prev_block))
+        print("Solved")
+        print(plaintext)
         return plaintext
 
 
     def check_padding(self, byte_ary):
+        return True
         #print(to_hex(byte_ary))
         b64_str = base64.b64encode(byte_ary).decode('utf-8')
         b64_str = b64_str.replace('=', '~').replace('+', '-').replace('/', '!')
@@ -95,31 +100,31 @@ def to_hex(byte_ary):
     return ''.join(format(x, '02x') for x in byte_ary)
 
 
+if __name__ == '__main__':
+    pd = PaddingDialer()
+    pd.set_encrypted_bytes_from_hex('deadbeefdeadbeefdeadbeefdeadbeef')
 
-pd = PaddingDialer()
-pd.set_encrypted_bytes_from_hex('deadbeefdeadbeefdeadbeefdeadbeef')
+    print(pd.encrypted_bytes)
+    print(pd.encrypted_bytes[0:4])
 
-print(pd.encrypted_bytes)
-print(pd.encrypted_bytes[0:4])
+    assert len(pd.encrypted_bytes) == 16
 
-assert len(pd.encrypted_bytes) == 16
+    pd.set_block_size_in_byte(16)
 
-pd.set_block_size_in_byte(16)
+    assert pd.cal_num_blocks() == 1
 
-assert pd.cal_num_blocks() == 1
+    pd.set_encrypted_bytes_from_hex(
+            'deadbeefdeadbeefdeadbeefdeadbeef'
+            '01234567012345670123456701234567'
+    )
 
-pd.set_encrypted_bytes_from_hex(
-        'deadbeefdeadbeefdeadbeefdeadbeef'
-        '01234567012345670123456701234567'
-)
+    print(to_hex(pd.get_block(0)))
+    print(to_hex(pd.get_block(1)))
 
-print(to_hex(pd.get_block(0)))
-print(to_hex(pd.get_block(1)))
+    pd.set_encrypted_bytes_from_hex(
+        '06 e1 ca ad 2f 26 f6 d5 e6 3d 06 11 2e ca 49 d6'
+        'e9 94 8b 33 21 e2 d6 07 0f 54 ec 60 92 13 d4 17'
+    )
 
-pd.set_encrypted_bytes_from_hex(
-    '06 e1 ca ad 2f 26 f6 d5 e6 3d 06 11 2e ca 49 d6'
-    'e9 94 8b 33 21 e2 d6 07 0f 54 ec 60 92 13 d4 17'
-)
-
-p = pd.start()
-print("P = " + to_hex(p))
+    p = pd.start()
+    print("P = " + to_hex(p))
