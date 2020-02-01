@@ -1,6 +1,3 @@
-import requests
-import base64
-
 class PaddingDialer:
     def __init__(self):
         self.encrypted_bytes = None
