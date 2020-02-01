@@ -1,3 +1,4 @@
+import requests
 import base64
 
 class PaddingDialer:
@@ -74,18 +75,7 @@ class PaddingDialer:
 
 
     def check_padding(self, byte_ary):
-        return True
-        #print(to_hex(byte_ary))
-        b64_str = base64.b64encode(byte_ary).decode('utf-8')
-        b64_str = b64_str.replace('=', '~').replace('+', '-').replace('/', '!')
-        #print(b64_str)
-        res = requests.get("http://35.227.24.107/9cb724f593/?post=" + b64_str)
-        #x = input()
-        if "PaddingException" not in res.text:
-            print(res.text)
-            return True
-        else:
-            return False
+        raise Exception("Error: function `check_padding` is not implemented.")
 
 
     def cal_num_blocks(self):
@@ -97,33 +87,3 @@ class PaddingDialer:
 
 def to_hex(byte_ary):
     return ''.join(format(x, '02x') for x in byte_ary)
-
-
-if __name__ == '__main__':
-    pd = PaddingDialer()
-    pd.set_encrypted_bytes_from_hex('deadbeefdeadbeefdeadbeefdeadbeef')
-
-    print(pd.encrypted_bytes)
-    print(pd.encrypted_bytes[0:4])
-
-    assert len(pd.encrypted_bytes) == 16
-
-    pd.set_block_size_in_byte(16)
-
-    assert pd.cal_num_blocks() == 1
-
-    pd.set_encrypted_bytes_from_hex(
-            'deadbeefdeadbeefdeadbeefdeadbeef'
-            '01234567012345670123456701234567'
-    )
-
-    print(to_hex(pd.get_block(0)))
-    print(to_hex(pd.get_block(1)))
-
-    pd.set_encrypted_bytes_from_hex(
-        '06 e1 ca ad 2f 26 f6 d5 e6 3d 06 11 2e ca 49 d6'
-        'e9 94 8b 33 21 e2 d6 07 0f 54 ec 60 92 13 d4 17'
-    )
-
-    p = pd.start()
-    print("P = " + to_hex(p))
