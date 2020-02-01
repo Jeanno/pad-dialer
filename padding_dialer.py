@@ -4,7 +4,7 @@ class PaddingDialer:
     def __init__(self):
         self.encrypted_bytes = None
         self.iv = None
-        self.block_size_in_byte = int(128 / 8)
+        self.block_size_in_byte = 128 // 8
 
 
     def set_encrypted_bytes(self, encrypted_bytes):
@@ -44,8 +44,11 @@ class PaddingDialer:
         # Case #2b
         # last byte of p = 01 where and not in case #2
         # only the original bytes can pass checking
-        p = self.solve_block(self.get_block(0), self.get_block(1))
-        return p
+        num_block = len(self.encrypted_bytes) // self.block_size_in_byte
+        result = [self.get_block(0)]
+        for i in range(1, num_block):
+            result.append(self.solve_block(self.get_block(i - 1), self.get_block(i)))
+        return result
 
     def solve_block(self, prev_block, target_block):
         print(to_hex(prev_block))
@@ -69,8 +72,6 @@ class PaddingDialer:
 
 
         plaintext = bytes(d ^ p ^ self.block_size_in_byte for (d, p) in zip(dial_block, prev_block))
-        print("Solved")
-        print(plaintext)
         return plaintext
 
 

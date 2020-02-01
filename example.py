@@ -68,4 +68,4 @@ if __name__ == '__main__':
     pd = MyDialer()
     pd.set_encrypted_bytes(ct)
     pd.set_block_size_in_byte(16)
-    pd.start()
+    print(pd.start())
