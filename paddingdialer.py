@@ -72,7 +72,7 @@ class PaddingDialer:
 
 
     def check_padding(self, byte_ary):
-        raise Exception("Error: function `check_padding` is not implemented.")
+        raise NotImplementedError
 
 
     def cal_num_blocks(self):

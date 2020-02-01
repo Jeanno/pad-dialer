@@ -5,9 +5,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 
-
-
-
 def test1():
     key = Fernet.generate_key()
     f = Fernet(key)
@@ -53,7 +50,6 @@ if __name__ == '__main__':
                 return False
 
             return True
-
 
 
     pd = MyDialer()
