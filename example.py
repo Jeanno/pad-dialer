@@ -35,32 +35,23 @@ if __name__ == '__main__':
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend)
     padder = padding.PKCS7(128).padder()
     encryptor = cipher.encryptor()
-    msg = b"a secret message, secret"
+    msg = b"this is block 1 this is block 2 this is block 3 this is block 4"
     padded = padder.update(msg) + padder.finalize()
-    print(padded)
+    #print(padded)
     ct = encryptor.update(padded) + encryptor.finalize()
-    print(to_hex(ct))
-    unpadder = padding.PKCS7(128).unpadder()
-    data = unpadder.update(padded) + unpadder.finalize()
-    print(data)
+    #print(to_hex(ct))
 
 
     class MyDialer(PaddingDialer):
         def check_padding(self, byte_ary):
-            #print(to_hex(byte_ary))
-            #x = input()
             decryptor = cipher.decryptor()
             unpadder = padding.PKCS7(128).unpadder()
             p = decryptor.update(byte_ary) + decryptor.finalize()
-            #print(p)
             try:
                 data = unpadder.update(p) + unpadder.finalize()
             except:
                 return False
 
-
-            #print(data)
-            #print("Hit:")
             return True
 
 

@@ -29,6 +29,13 @@ class PaddingDialer:
 
 
     def start(self):
+        num_block = len(self.encrypted_bytes) // self.block_size_in_byte
+        result = bytearray(self.get_block(0))
+        for i in range(1, num_block):
+            result += self.solve_block(self.get_block(i - 1), self.get_block(i))
+        return result
+
+    def solve_block(self, prev_block, target_block):
         # Let plaintext = p
         # Case #1
         # last byte of p is not 01
@@ -44,15 +51,6 @@ class PaddingDialer:
         # Case #2b
         # last byte of p = 01 where and not in case #2
         # only the original bytes can pass checking
-        num_block = len(self.encrypted_bytes) // self.block_size_in_byte
-        result = [self.get_block(0)]
-        for i in range(1, num_block):
-            result.append(self.solve_block(self.get_block(i - 1), self.get_block(i)))
-        return result
-
-    def solve_block(self, prev_block, target_block):
-        print(to_hex(prev_block))
-        print(to_hex(target_block))
         dial_block = bytearray(prev_block)
 
         for i in reversed(range(self.block_size_in_byte)):
