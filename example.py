@@ -1,5 +1,5 @@
 import os
-from padding_dialer import PaddingDialer
+from paddingdialer import PaddingDialer
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
