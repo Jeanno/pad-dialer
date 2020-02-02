@@ -66,7 +66,7 @@ class PaddingDialer:
 
         for c in last_byte_candidates:
             try:
-                return self._solve_block_with_candidate(dial_block, target_block, c)
+                return self._solve_block_with_candidate(prev_block, target_block, c)
             except NoSolutionException:
                 pass
 
