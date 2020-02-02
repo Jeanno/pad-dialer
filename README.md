@@ -11,7 +11,6 @@ https://en.wikipedia.org/wiki/Padding_oracle_attack
 [Jeanno](https://jeanno.github.io/)
 
 ## Backlog
-- Support edge cases where dialer can at the last byte dial into padding 02 02, 03 03 03, etc...
 - Register as python module
 - Create documentation site
 

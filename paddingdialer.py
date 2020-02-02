@@ -1,4 +1,9 @@
+class NoSolutionException(Exception):
+    pass
+
 class PaddingDialer:
+
+    BYTE_MAX = 255
     def __init__(self):
         self.encrypted_bytes = None
         self.iv = None
@@ -51,19 +56,40 @@ class PaddingDialer:
         # only the original bytes can pass checking
         dial_block = bytearray(prev_block)
 
-        for i in reversed(range(self.block_size_in_byte)):
+        last_byte_candidates = []
+        for i in range(self.BYTE_MAX + 1):
+            dial_block[self.block_size_in_byte - 1] = i
+            if self.check_padding(dial_block + target_block):
+                last_byte_candidates.append(i)
+
+        assert len(last_byte_candidates) == 1 or len(last_byte_candidates) == 2
+
+        for c in last_byte_candidates:
+            try:
+                return self._solve_block_with_candidate(dial_block, target_block, c)
+            except NoSolutionException:
+                pass
+
+        raise NoSolutionException
+
+
+
+    def _solve_block_with_candidate(self, prev_block, target_block, last_byte_candidate):
+        dial_block = bytearray(prev_block)
+        dial_block[self.block_size_in_byte - 1] = last_byte_candidate
+        for i in reversed(range(self.block_size_in_byte - 1)):
             set_to = self.block_size_in_byte - i
             for j in range(i + 1, self.block_size_in_byte):
                 dial_block[j] ^= set_to ^ (set_to - 1)
 
             count = 0
             while True:
-                dial_block[i] = (dial_block[i] + 1) % 256
+                dial_block[i] = (dial_block[i] + 1) % (self.BYTE_MAX + 1)
                 if self.check_padding(dial_block + target_block):
                     break
 
                 count += 1
-                if count > 256:
+                if count > self.BYTE_MAX + 1:
                     raise Exception("Cannot dial to right padding")
 
 
